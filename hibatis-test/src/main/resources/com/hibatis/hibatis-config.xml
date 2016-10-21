@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "file:///D:/workspaces/jsf/hibatis/src/main/resources/com/hibatis/hibatis-config_1_0.dtd">
+
+<sqls>
+	<select id="staticSel">
+		select emp.*,dept.dept_addr, dept.dept_name, dept.dept_no
+		from emp,dept where emp.dept_id=dept.id
+	</select>
+
+	<select id="rawSel">
+		select emp.*,dept.dept_addr, dept.dept_name, dept.dept_no
+		from emp,dept where
+		emp.dept_id=dept.id
+		and empname=:empname
+		and email=:email
+	</select>
+
+	<select id="dynamicSel">
+		select emp.*,dept.dept_addr, dept.dept_name, dept.dept_no from emp,dept where
+		emp.dept_id=dept.id
+		<if test="empname != null">
+			and empname=:empname
+		</if>
+		<if test="email != null">
+			and email=:email
+		</if>
+		<if test="sex != null">
+			and sex =:sex
+		</if>
+	</select>
+
+	<insert id="hbatisInsert">
+		INSERT INTO test.emp (id, address, birthday, dept_id, email,
+		empName, mobile, phone,
+		sex)
+		VALUES (:id, :address, :birthday, :dept_id, :email,
+		:empname, :mobile, :phone, :sex)
+	</insert>
+
+	<delete id="hibatisDel">
+		delete from emp where id=:id
+		<if test="address != null">
+			and address = :address
+		</if>
+	</delete>
+
+	<update id="hibatisUpdate">
+		update emp set emp.address=:address, emp.phone=:phone where emp.id=:id
+		<if test="email != null">
+			and emp.email = :email
+		</if>
+	</update>
+</sqls>

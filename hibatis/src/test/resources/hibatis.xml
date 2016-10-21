@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "file:///com/hibatis/hibatis-config_1_0.dtd">
+
+<sqls>
+	<delete id="aa">
+		delete from tc_user where 1=1
+		<if test="2==2 ">
+			and 2=:adfda
+			<if test="3 == 3 ">
+				and 3=:adfda
+				<if test="4 == 4 ">
+					and 4=:adfda
+				</if>
+			</if>
+		</if>
+		and 2=2
+	</delete>
+
+<!-- 	<select id="bb"> -->
+<!-- 		select * from tc_user where 1=1 -->
+<!-- 	</select> -->
+
+<!-- 	<insert id="cc"> -->
+<!-- 		insert into Author -->
+<!-- 		(id,username,password,email,bio) -->
+<!-- 		values -->
+<!-- 		(#{id},#{username},#{password},#{email},#{bio}) -->
+<!-- 	</insert> -->
+
+<!-- 	<update id="dd"> -->
+<!-- 		update Author -->
+<!-- 		set -->
+<!-- 		username=#{username, -->
+<!-- 		javaType=String}, -->
+<!-- 		password=#{password}, -->
+<!-- 		email=#{email}, -->
+<!-- 		bio=#{bio} -->
+<!-- 		where -->
+<!-- 		id=#{id} -->
+<!-- 	</update> -->
+
+<!-- 	<delete id="ee"> -->
+<!-- 		delete from Author where id = -->
+<!-- 		#{id} -->
+<!-- 	</delete> -->
+
+</sqls>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context             
+        http://www.springframework.org/schema/context/spring-context.xsd  
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 引入properties文件 -->
+	<context:property-placeholder location="classpath*:/dbConfig.properties" />
+
+	<context:annotation-config />
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- 定义数据库连接池数据源bean destroy-method="close"的作用是当数据库连接不使用的时候,就把该连接重新放到数据池中,方便下次使用调用 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<!-- 设置JDBC驱动名称 -->
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<!-- 设置JDBC连接URL -->
+		<property name="url" value="${jdbc.url}" />
+		<!-- 设置数据库用户名 -->
+		<property name="username" value="${jdbc.username}" />
+		<!-- 设置数据库密码 -->
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- transation management -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Throwable" />
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="txOperation"
+			expression="within(com..*)" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txOperation" />
+	</aop:config>
+
+	<!-- 配置sessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.cache.use_second_level_cache">${hibernate.cache.use_second_level_cache}</prop>
+				<prop key="hibernate.cache.use_query_cache">${hibernate.cache.use_query_cache}</prop>
+				<prop key="hibernate.jdbc.fetch_size">${hibernate.jdbc.fetch_size}</prop>
+				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+				<prop key="hibernate.connection.autocommit">${hibernate.connection.autocommit}</prop>
+				<prop key="hibernate.connection.release_mode">${hibernate.connection.release_mode}</prop>
+				<prop key="hibernate.current_session_context_class">${hibernate.current_session_context_class}</prop>
+				<prop key="javax.persistence.validation.mode">${javax.persistence.validation.mode}</prop>
+			</props>
+		</property>
+		<!-- 自动扫描实体对象com.commits.invespec.entity的包结构中存放实体类 -->
+		<property name="packagesToScan" value="entity" />
+	</bean>
+	<!-- 定义事务管理 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- 定义 Autowired 自动注入 bean -->
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+	<!-- 扫描有注解的文件 base-package 包路径 -->
+	<context:component-scan base-package="com.commits.invespec" />
+
+	<bean name="hbFactory" class="org.hibatis.db.HbFactoryImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+</beans>
