@@ -2,6 +2,7 @@ package org.hibatis.db;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,57 +200,59 @@ public class HbFactoryImpl implements HbFactory
 
 	public <T> int update(T t1, T t2)
 	{
-		Method[] methods = t1.getClass().getDeclaredMethods();
-		Field[] fields = t1.getClass().getDeclaredFields();
-		StringBuffer usql = new StringBuffer();
-		StringBuffer wsql = new StringBuffer();
-		usql.append("UPDATE ").append(t1.getClass().getName()).append(" SET\n");
-		int whereCount = 0;
-		Map <String, Object> paraMap = new HashMap <String, Object>();
-		for (Method method : methods)
-		{
-			if (method.getName().startsWith("get"))
-			{
-				try
-				{
+	    Method[] methods = t1.getClass().getDeclaredMethods();
+        Field[] fields = t1.getClass().getDeclaredFields();
+        StringBuffer usql = new StringBuffer();
+        StringBuffer wsql = new StringBuffer();
+        usql.append("UPDATE ").append(t1.getClass().getName()).append(" SET\n");
+        int whereCount = 0;
+        List<Object> paraMap = new ArrayList<Object>();
+        List<Object> whereClause = new ArrayList<Object>();
+        for (Method method : methods)
+        {
+            if (method.getName().startsWith("get"))
+            {
+                try
+                {
 
-					Object nval = method.invoke(t2, new Object []{});
-					// 设置更新值
-					if (nval != null)
-					{
-						String fld = getFieldName(fields, method);
-						usql.append(fld).append("=:").append(fld).append(",\n");
-						paraMap.put(fld, nval);
-					}
-					if (whereCount == 0)
-					{
-						wsql.append(" WHERE 1=1\n");
-						whereCount++;
-					}
-					Object wval = method.invoke(t1, new Object []{});
-					if (wval != null)
-					{
-						String fld = getFieldName(fields, method);
-						wsql.append(" AND ").append(fld).append("=:").append(fld).append("\n");
-						paraMap.put(fld, wval);
-					}
-				}
-				catch (Exception e)
-				{
-					throw new BuilderException(e.getMessage(), e);
-				}
-			}
-		}
-		StringBuffer sql = new StringBuffer(usql.substring(0, usql.toString().lastIndexOf(","))).append("\n");
-		sql.append(wsql);
-		Query query = getSession().createQuery(sql.toString());
-		// 设置参数
-		for (String key : paraMap.keySet())
-		{
-			query.setParameter(key, paraMap.get(key));
-		}
-		int record = query.executeUpdate();
-		return record;
+                    Object nval = method.invoke(t2, new Object []{});
+                    // 设置更新值
+                    if (nval != null)
+                    {
+                        String fld = getFieldName(fields, method);
+                        usql.append(fld).append("=?").append(",\n");
+                        paraMap.add(nval);
+                    }
+                    if (whereCount == 0)
+                    {
+                        wsql.append(" WHERE 1=1\n");
+                        whereCount++;
+                    }
+                    Object wval = method.invoke(t1, new Object []{});
+                    if (wval != null)
+                    {
+                        String fld = getFieldName(fields, method);
+                        wsql.append(" AND ").append(fld).append("=?").append("\n");
+                        whereClause.add(wval);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        paraMap.addAll(whereClause);
+        StringBuffer sql = new StringBuffer(usql.substring(0, usql.toString().lastIndexOf(","))).append("\n");
+        sql.append(wsql);
+        Query query = sessionFactory.getCurrentSession().createQuery(sql.toString());
+        // 设置参数
+        for (int i = 0; i < paraMap.size(); i++)
+        {
+            query.setParameter(i, paraMap.get(i));
+        }
+        int record = query.executeUpdate();
+        return record;
 	}
 
 	public int update(String selectId, Map <String, Object> parameter)
