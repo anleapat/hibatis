@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "file:///D:/workspaces/jsf/hibatis/src/main/resources/com/hibatis/hibatis-config_1_0.dtd">
+<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "https://github.com/anleapat/hibatis/blob/master/hibatis-config_1_0.dtd">
 
 <sqls>
 	<select id="staticSel">
@@ -50,4 +50,5 @@
 			and emp.email = :email
 		</if>
 	</update>
+	
 </sqls>
