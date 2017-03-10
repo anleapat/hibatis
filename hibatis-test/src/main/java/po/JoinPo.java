@@ -160,5 +160,29 @@ public class JoinPo
         return "JoinPo [id=" + id + ", deptId=" + deptId + ", empName=" + empName + ", address=" + address + ", birthday=" + birthday + ", email=" + email
                 + ", mobile=" + mobile + ", phone=" + phone + ", sex=" + sex + ", deptNo=" + deptNo + ", deptName=" + deptName + ", deptAddr=" + deptAddr + "]";
     }
+    
+    public JoinPo()
+    {
+        
+    }
+
+    public JoinPo(Long id, Long deptId, String empName, String address, Date birthday, String email, String mobile, String phone, String sex, String deptNo,
+            String deptName, String deptAddr)
+    {
+        this.id = id;
+        this.deptId = deptId;
+        this.empName = empName;
+        this.address = address;
+        this.birthday = birthday;
+        this.email = email;
+        this.mobile = mobile;
+        this.phone = phone;
+        this.sex = sex;
+        this.deptNo = deptNo;
+        this.deptName = deptName;
+        this.deptAddr = deptAddr;
+    }
+    
+    
 
 }

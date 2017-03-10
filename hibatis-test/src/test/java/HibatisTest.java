@@ -1,3 +1,4 @@
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -6,9 +7,11 @@ import java.util.Map;
 import org.hibatis.db.HbFactory;
 import org.hibatis.db.HbFactoryImpl;
 import org.hibatis.utils.MapToPo;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,22 +28,21 @@ import po.JoinPo;
 public class HibatisTest
 {
 
-    private HbFactory hbFactory;
-    
-    private Session session;
+    private HbFactoryImpl hbFactory;
 
     @Before
     public void before()
     {
         SessionFactory sessionFactory = new Configuration().configure().addAnnotatedClass(Emp.class).addAnnotatedClass(Dept.class).buildSessionFactory();
-        this.session = sessionFactory.openSession();
-        this.hbFactory = new HbFactoryImpl(session);
+
+        HbFactoryImpl hbFactoryImpl = new HbFactoryImpl(sessionFactory);
+        this.hbFactory = hbFactoryImpl;
     }
 
     @Test
     public void insert()
     {
-        session.getTransaction().begin();
+        hbFactory.getSession().getTransaction().begin();
         for (int i = 1; i < 14; i++)
         {
             Dept dept = new Dept();
@@ -48,7 +50,7 @@ public class HibatisTest
             dept.setDeptName("SH" + i);
             dept.setDeptNo("DEPT" + i);
             hbFactory.insert(dept);
-            
+
             Emp emp = new Emp();
             emp.setEmpName("hibatis" + i);
             emp.setDeptId(dept.getId());
@@ -64,7 +66,7 @@ public class HibatisTest
             emp.setSex(sex);
             hbFactory.insert(emp);
         }
-        session.getTransaction().commit();
+        hbFactory.getSession().getTransaction().commit();
     }
 
     @Test
@@ -140,15 +142,16 @@ public class HibatisTest
         parameter.put("sex", "male");
         hbFactory.insert("com.hibatis.hibatis-config.hbatisInsert", parameter);
     }
-    
+
     @Test
     public void delete()
     {
         Emp emp = new Emp();
+        emp.setId(41L);
         emp.setAddress("address");
         hbFactory.delete(emp);
     }
-    
+
     @Test
     public void deleteHibatis()
     {
@@ -159,7 +162,7 @@ public class HibatisTest
         parameter.put("dept_id", 1);
         hbFactory.delete("com.hibatis.hibatis-config.hibatisDel", parameter);
     }
-    
+
     @Test
     public void update()
     {
@@ -171,7 +174,7 @@ public class HibatisTest
         set.setSex("male");
         hbFactory.update(where, set);
     }
-    
+
     @Test
     public void updateHibatis()
     {
@@ -185,19 +188,71 @@ public class HibatisTest
         parameter.put("sex", "male");
         hbFactory.update("com.hibatis.hibatis-config.hibatisUpdate", parameter);
     }
-    
+
     @Test
     public void mapToPo()
     {
         Map <String, Object> parameter = new HashMap <String, Object>();
-//        parameter.put("empname", "hibatis2");
-//        parameter.put("email", "2@2.2");
+        // parameter.put("empname", "hibatis2");
+        // parameter.put("email", "2@2.2");
         parameter.put("sex", "male");
         List <Map <String, Object>> list = hbFactory.select("com.hibatis.hibatis-config.dynamicSel", parameter);
-        List<JoinPo> pos = MapToPo.mapToPo(list, JoinPo.class);
+        List <JoinPo> pos = MapToPo.mapToPo(list, JoinPo.class);
         for (JoinPo joinPo : pos)
         {
             System.out.println(joinPo);
         }
     }
+
+    @Test
+    public void testEntityField()
+    {
+        Field[] fields = Emp.class.getDeclaredFields();
+        for (Field field : fields)
+        {
+            String fn = field.getName();
+            if ("serialVersionUID".equals(fn))
+            {
+                continue;
+            }
+            System.out.println("<if test=\"" + fn + " != null\">");
+            System.out.println("\tand " + fn + " = :" + fn);
+            System.out.println("</if>");
+        }
+    }
+
+    @Test
+    public void hqlSelect()
+    {
+        List <Emp> list = hbFactory.selectByHql("com.hibatis.hibatis-config.hqlSelect", null);
+        for (Emp emp : list)
+        {
+            System.out.println(emp);
+        }
+    }
+
+    @Test
+    public void hqlRecordCount()
+    {
+        // Query query = hbFactory.getSession().createQuery("from (select e from
+        // Emp e)");
+        // List list = query.list();
+        Map <String, Object> parameter = new HashMap <String, Object>();
+        parameter.put("address", "Shanghai");
+        int rc = hbFactory.recordCountByHql("com.hibatis.hibatis-config.hqlSelect", parameter);
+        System.out.println(rc);
+    }
+
+    @Test
+    public void hqlJoinSelect()
+    {
+        Map <String, Object> parameter = new HashMap <String, Object>();
+        parameter.put("deptNo", "DEPT1");
+        List <JoinPo> list = hbFactory.selectByHql("com.hibatis.hibatis-config.hqlJoinSelect", parameter);
+        for (JoinPo po : list)
+        {
+            System.out.println(po);
+        }
+    }
+
 }

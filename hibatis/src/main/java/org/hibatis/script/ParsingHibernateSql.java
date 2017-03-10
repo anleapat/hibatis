@@ -75,15 +75,19 @@ public class ParsingHibernateSql
 				{
 					IfSqlNode node = (IfSqlNode) sqlNode;
 					MixedSqlNode mnode = (MixedSqlNode) node.getContents();
-					boolean b = OgnlCache.getValue(node.getTest(), parameter);
-					if (b)
+					boolean b = false;
+					if(parameter != null)
 					{
-						List <SqlNode> tlist = mnode.getContents();
-						for (SqlNode sn : tlist)
-						{
-							sb.append(((TextSqlNode) sn).getText());
-							parsingParameter(parameter, sb, paraMap);
-						}
+					    b = OgnlCache.getValue(node.getTest(), parameter);
+	                    if (b)
+	                    {
+	                        List <SqlNode> tlist = mnode.getContents();
+	                        for (SqlNode sn : tlist)
+	                        {
+	                            sb.append(((TextSqlNode) sn).getText());
+	                            parsingParameter(parameter, sb, paraMap);
+	                        }
+	                    }
 					}
 				}
 			}

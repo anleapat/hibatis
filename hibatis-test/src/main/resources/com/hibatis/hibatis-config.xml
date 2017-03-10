@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "https://github.com/anleapat/hibatis/blob/master/hibatis-config_1_0.dtd">
+<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "file:///D:/workspaces/jsf/hibatis/src/main/resources/com/hibatis/hibatis-config_1_0.dtd">
 
 <sqls>
 	<select id="staticSel">
@@ -13,20 +13,6 @@
 		emp.dept_id=dept.id
 		and empname=:empname
 		and email=:email
-	</select>
-
-	<select id="dynamicSel">
-		select emp.*,dept.dept_addr, dept.dept_name, dept.dept_no from emp,dept where
-		emp.dept_id=dept.id
-		<if test="empname != null">
-			and empname=:empname
-		</if>
-		<if test="email != null">
-			and email=:email
-		</if>
-		<if test="sex != null">
-			and sex =:sex
-		</if>
 	</select>
 
 	<insert id="hbatisInsert">
@@ -50,5 +36,85 @@
 			and emp.email = :email
 		</if>
 	</update>
+
+	<select id="dynamicSel">
+		select emp.*,dept.dept_addr, dept.dept_name, dept.dept_no from emp,dept where
+		emp.dept_id=dept.id
+		<if test="empname != null">
+			and empname=:empname
+		</if>
+		<if test="email != null">
+			and email=:email
+		</if>
+		<if test="sex != null">
+			and sex =:sex
+		</if>
+	</select>
+
+	<select id="hqlSelect">
+		 from Emp e, Dept d
+		where 1=1 and e.deptId = d.id
+		<if test="id != null">
+			and id = :id
+		</if>
+		<if test="deptId != null">
+			and deptId = :deptId
+		</if>
+		<if test="empName != null">
+			and empName like :empName
+		</if>
+		<if test="address != null">
+			and address like :address
+		</if>
+		<if test="birthday != null">
+			and birthday = :birthday
+		</if>
+		<if test="email != null">
+			and email like :email
+		</if>
+		<if test="mobile != null">
+			and mobile like :mobile
+		</if>
+		<if test="phone != null">
+			and phone like :phone
+		</if>
+		<if test="sex != null">
+			and sex = :sex
+		</if>
+		order by birthday desc
+	</select>
 	
+	<select id="hqlJoinSelect">
+		select new po.JoinPo(e.id,  d.id,  e.empName,  e.address,  e.birthday,  e.email,  e.mobile,  e.phone,  e.sex,  d.deptNo, d.deptName,  d.deptAddr) 
+		from Emp e, Dept d
+		where e.deptId = d.id
+		<if test="id != null">
+			and e.id = :id
+		</if>
+		<if test="deptNo != null">
+			and d.deptNo = :deptNo
+		</if>
+		<if test="empName != null">
+			and e.empName like :empName
+		</if>
+		<if test="address != null">
+			and e.address like :address
+		</if>
+		<if test="birthday != null">
+			and e.birthday = :birthday
+		</if>
+		<if test="email != null">
+			and e.email like :email
+		</if>
+		<if test="mobile != null">
+			and e.mobile like :mobile
+		</if>
+		<if test="phone != null">
+			and e.phone like :phone
+		</if>
+		<if test="sex != null">
+			and e.sex = :sex
+		</if>
+		order by e.birthday desc
+	</select>
 </sqls>
