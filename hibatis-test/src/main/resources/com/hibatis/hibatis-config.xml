@@ -52,7 +52,7 @@
 	</select>
 
 	<select id="hqlSelect">
-		 from Emp e, Dept d
+		select e from Emp e, Dept d
 		where 1=1 and e.deptId = d.id
 		<if test="id != null">
 			and id = :id
