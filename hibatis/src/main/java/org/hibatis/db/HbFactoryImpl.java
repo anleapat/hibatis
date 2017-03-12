@@ -70,7 +70,16 @@ public class HbFactoryImpl implements HbFactory
                     continue;
                 }
                 String md = getMethod(field.getName());
-                Method method = t.getClass().getDeclaredMethod(md);
+                Method method = null;
+                try
+                {
+                    method = t.getClass().getDeclaredMethod(md);
+                }
+                catch (Exception e)
+                {
+                    //do nothing
+                    continue;
+                }
                 Object wval = method.invoke(t, new Object []{});
                 // 设置条件值
                 if (wval != null)
@@ -313,7 +322,16 @@ public class HbFactoryImpl implements HbFactory
                     continue;
                 }
                 String md = getMethod(field.getName());
-                Method method = t.getClass().getDeclaredMethod(md);
+                Method method = null;
+                try
+                {
+                    method = t.getClass().getDeclaredMethod(md);
+                }
+                catch (Exception e)
+                {
+                    //do nothing
+                    continue;
+                }
                 Object wval = method.invoke(t, new Object []{});
                 // 设置条件值
                 if (wval != null)
@@ -363,7 +381,16 @@ public class HbFactoryImpl implements HbFactory
                 }
                 // 获取方法与值
                 String md = getMethod(fieldName);
-                Method umethod = t2.getClass().getDeclaredMethod(md);
+                Method umethod = null;
+                try
+                {
+                    umethod = t2.getClass().getDeclaredMethod(md);
+                }
+                catch (Exception e)
+                {
+                    //do nothing
+                    continue;
+                }
                 Object uval = umethod.invoke(t2, new Object []{});
                 // 设置更新值
                 if (uval != null)
