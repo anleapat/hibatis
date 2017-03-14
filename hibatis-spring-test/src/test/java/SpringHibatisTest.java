@@ -1,3 +1,4 @@
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -190,6 +191,60 @@ public class SpringHibatisTest
         for (JoinPo joinPo : pos)
         {
             System.out.println(joinPo);
+        }
+    }
+    
+
+    @Test
+    public void testEntityField()
+    {
+        Field[] fields = Emp.class.getDeclaredFields();
+        for (Field field : fields)
+        {
+            String fn = field.getName();
+            if ("serialVersionUID".equals(fn))
+            {
+                continue;
+            }
+            System.out.println("<if test=\"" + fn + " != null\">");
+            System.out.println("\tand " + fn + " = :" + fn);
+            System.out.println("</if>");
+        }
+    }
+
+    @Test
+    public void hqlSelect()
+    {
+        Map <String, Object> parameter = new HashMap <String, Object>();
+        parameter.put("address", "%Shanghai%");
+        List <Emp> list = hbFactory.selectByHql("com.hibatis.hibatis-config.hqlSelect", parameter);
+        for (Emp emp : list)
+        {
+            System.out.println(emp);
+        }
+    }
+
+    @Test
+    public void hqlRecordCount()
+    {
+        // Query query = hbFactory.getSession().createQuery("from (select e from
+        // Emp e)");
+        // List list = query.list();
+        Map <String, Object> parameter = new HashMap <String, Object>();
+        parameter.put("address", "Shanghai");
+        int rc = hbFactory.recordCountByHql("com.hibatis.hibatis-config.hqlSelect", parameter);
+        System.out.println(rc);
+    }
+
+    @Test
+    public void hqlJoinSelect()
+    {
+        Map <String, Object> parameter = new HashMap <String, Object>();
+//        parameter.put("deptNo", "DEPT1");
+        List <JoinPo> list = hbFactory.selectByHql("com.hibatis.hibatis-config.hqlJoinSelect", parameter);
+        for (JoinPo po : list)
+        {
+            System.out.println(po);
         }
     }
 }
