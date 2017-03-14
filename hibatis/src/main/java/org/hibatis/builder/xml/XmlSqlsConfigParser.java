@@ -17,7 +17,7 @@ public final class XmlSqlsConfigParser implements EntityResolver
 
 	static
 	{
-		doctypeMap.put("-//hibatis.org//DTD sql 1.0//EN".toUpperCase(), "/com/hibatis/hibatis-config_1_0.dtd");
+		doctypeMap.put("-//github.com/anleapat/hibatis//DTD sql 1.0//EN".toUpperCase(), "hibatis-config_1_0.dtd");
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException
