@@ -65,10 +65,6 @@ public class HbFactoryImpl implements HbFactory
             try
             {
                 String fieldName = field.getName();
-                if("serialVersionUID".equals(fieldName))
-                {
-                    continue;
-                }
                 String md = getMethod(field.getName());
                 Method method = null;
                 try
@@ -317,10 +313,6 @@ public class HbFactoryImpl implements HbFactory
             try
             {
                 String fieldName = field.getName();
-                if("serialVersionUID".equals(fieldName))
-                {
-                    continue;
-                }
                 String md = getMethod(field.getName());
                 Method method = null;
                 try
@@ -375,10 +367,6 @@ public class HbFactoryImpl implements HbFactory
             try
             {
                 String fieldName = field.getName();
-                if("serialVersionUID".equals(fieldName))
-                {
-                    continue;
-                }
                 // 获取方法与值
                 String md = getMethod(fieldName);
                 Method umethod = null;
