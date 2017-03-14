@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE sqls PUBLIC "-//hibatis.org//DTD sql 1.0//EN" "hibatis-config_1_0.dtd">
+<!DOCTYPE sqls PUBLIC "-//github.com/anleapat/hibatis//DTD sql 1.0//EN" "hibatis-config_1_0.dtd">
 
 <sqls>
 	<select id="staticSel">
