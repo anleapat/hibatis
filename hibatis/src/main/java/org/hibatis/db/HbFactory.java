@@ -18,6 +18,14 @@ public interface HbFactory
      * @return
      */
     public <T> List <T> select(T t);
+    
+    /**
+     * for update查询满足条件实体列表
+     * 
+     * @param t
+     * @return
+     */
+    public <T> List <T> selectForUpdate(T t);
 
     /**
      * 查询满足条件实体列表并返回列表中第一个对象
@@ -33,6 +41,13 @@ public interface HbFactory
      * @return
      */
     public <T> List <T> selectByHql(String selectId, Map <String, Object> parameter);
+    
+    /**
+     * hql for update查询实体列表
+     * 
+     * @return
+     */
+    public <T> List <T> selectForUpdateByHql(String selectId, Map <String, Object> parameter);
 
     /**
      * hql查询实体列表并返回列表中第一个对象
@@ -71,6 +86,15 @@ public interface HbFactory
      * @return
      */
     public List <Map <String, Object>> select(String selectId, Map <String, Object> parameter);
+    
+    /**
+     * sql for update查询返回Map列表
+     * 
+     * @param selectId
+     * @param parameter
+     * @return
+     */
+    public List <Map <String, Object>> selectForUpdate(String selectId, Map <String, Object> parameter);
 
     /**
      * sql查询返回Map列表并限制条数

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.hibatis.builder.BuilderException;
 import org.hibatis.script.HibernateQuery;
 import org.hibatis.script.ParsingHibernateSql;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -56,45 +57,15 @@ public class HbFactoryImpl implements HbFactory
 
     public <T> List <T> select(T t)
     {
-        Field[] fields = t.getClass().getDeclaredFields();
-        StringBuffer sql = new StringBuffer();
-        sql.append("FROM ").append(t.getClass().getName()).append(" WHERE 1=1\n");
-        Map <String, Object> paraMap = new HashMap <String, Object>();
-        for (Field field : fields)
-        {
-            try
-            {
-                String fieldName = field.getName();
-                String md = getMethod(field.getName());
-                Method method = null;
-                try
-                {
-                    method = t.getClass().getDeclaredMethod(md);
-                }
-                catch (Exception e)
-                {
-                    //do nothing
-                    continue;
-                }
-                Object wval = method.invoke(t, new Object []{});
-                // 设置条件值
-                if (wval != null)
-                {
-                    paraMap.put(fieldName, wval);
-                    sql.append(" AND ").append(fieldName).append("=:").append(fieldName).append("\n");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new BuilderException(e.getMessage(), e);
-            }
-        }
-        Query query = getSession().createQuery(sql.toString());
-        // 设置参数
-        for (String key : paraMap.keySet())
-        {
-            query.setParameter(key, paraMap.get(key));
-        }
+        Query query = prepareQuery(t);
+        List <T> reslist = query.list();
+        return reslist;
+    }
+    
+    public <T> List <T> selectForUpdate(T t)
+    {
+        Query query = prepareQuery(t);
+        query.setLockOptions(LockOptions.UPGRADE);
         List <T> reslist = query.list();
         return reslist;
     }
@@ -125,6 +96,14 @@ public class HbFactoryImpl implements HbFactory
     public <T> List <T> selectByHql(String selectId, Map <String, Object> parameter)
     {
         Query query = prepareHqlQuery(selectId, parameter);
+        List <T> list = query.list();
+        return list;
+    }
+    
+    public <T> List <T> selectForUpdateByHql(String selectId, Map <String, Object> parameter)
+    {
+        Query query = prepareHqlQuery(selectId, parameter);
+        query.setLockOptions(LockOptions.UPGRADE);
         List <T> list = query.list();
         return list;
     }
@@ -265,29 +244,15 @@ public class HbFactoryImpl implements HbFactory
 
     public List <Map <String, Object>> select(String selectId, Map <String, Object> parameter)
     {
-        HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
-        Query query = getSession().createSQLQuery(hquery.getSql());
-        Map <String, Object> paraMap = hquery.getParameter();
-        if (null != paraMap && paraMap.size() > 0)
-        {
-            Set <String> keys = paraMap.keySet();
-            for (String key : keys)
-            {
-                if(paraMap.get(key) instanceof Object[])
-                {
-                    query.setParameterList(key, (Object[])paraMap.get(key));
-                }
-                else if(paraMap.get(key) instanceof ArrayList <?>)
-                {
-                    query.setParameterList(key, (ArrayList <?>)paraMap.get(key));
-                }
-                else
-                {
-                    query.setParameter(key, paraMap.get(key));
-                }
-            }
-        }
-        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        Query query = prepareQuery(selectId, parameter);
+        List <Map <String, Object>> list = query.list();
+        return list;
+    }
+    
+    public List <Map <String, Object>> selectForUpdate(String selectId, Map <String, Object> parameter)
+    {
+        Query query = prepareQuery(selectId, parameter);
+        query.setLockOptions(LockOptions.UPGRADE);
         List <Map <String, Object>> list = query.list();
         return list;
     }
@@ -430,6 +395,78 @@ public class HbFactoryImpl implements HbFactory
     public int update(String selectId, Map <String, Object> parameter)
     {
         return executeUpdate(selectId, parameter);
+    }
+    
+    private Query prepareQuery(String selectId, Map <String, Object> parameter)
+    {
+        HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
+        Query query = getSession().createSQLQuery(hquery.getSql());
+        Map <String, Object> paraMap = hquery.getParameter();
+        if (null != paraMap && paraMap.size() > 0)
+        {
+            Set <String> keys = paraMap.keySet();
+            for (String key : keys)
+            {
+                if(paraMap.get(key) instanceof Object[])
+                {
+                    query.setParameterList(key, (Object[])paraMap.get(key));
+                }
+                else if(paraMap.get(key) instanceof ArrayList <?>)
+                {
+                    query.setParameterList(key, (ArrayList <?>)paraMap.get(key));
+                }
+                else
+                {
+                    query.setParameter(key, paraMap.get(key));
+                }
+            }
+        }
+        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query;
+    }
+    
+    private <T> Query prepareQuery(T t)
+    {
+        Field[] fields = t.getClass().getDeclaredFields();
+        StringBuffer sql = new StringBuffer();
+        sql.append("FROM ").append(t.getClass().getName()).append(" WHERE 1=1\n");
+        Map <String, Object> paraMap = new HashMap <String, Object>();
+        for (Field field : fields)
+        {
+            try
+            {
+                String fieldName = field.getName();
+                String md = getMethod(field.getName());
+                Method method = null;
+                try
+                {
+                    method = t.getClass().getDeclaredMethod(md);
+                }
+                catch (Exception e)
+                {
+                    //do nothing
+                    continue;
+                }
+                Object wval = method.invoke(t, new Object []{});
+                // 设置条件值
+                if (wval != null)
+                {
+                    paraMap.put(fieldName, wval);
+                    sql.append(" AND ").append(fieldName).append("=:").append(fieldName).append("\n");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new BuilderException(e.getMessage(), e);
+            }
+        }
+        Query query = getSession().createQuery(sql.toString());
+        // 设置参数
+        for (String key : paraMap.keySet())
+        {
+            query.setParameter(key, paraMap.get(key));
+        }
+        return query;
     }
 
     private int executeUpdate(String selectId, Map <String, Object> parameter)
