@@ -88,15 +88,6 @@ public interface HbFactory
     public List <Map <String, Object>> select(String selectId, Map <String, Object> parameter);
     
     /**
-     * sql for update查询返回Map列表
-     * 
-     * @param selectId
-     * @param parameter
-     * @return
-     */
-    public List <Map <String, Object>> selectForUpdate(String selectId, Map <String, Object> parameter);
-
-    /**
      * sql查询返回Map列表并限制条数
      * 
      * @param selectId

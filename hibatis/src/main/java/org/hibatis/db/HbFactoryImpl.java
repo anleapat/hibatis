@@ -249,14 +249,6 @@ public class HbFactoryImpl implements HbFactory
         return list;
     }
     
-    public List <Map <String, Object>> selectForUpdate(String selectId, Map <String, Object> parameter)
-    {
-        Query query = prepareQuery(selectId, parameter);
-        query.setLockOptions(LockOptions.UPGRADE);
-        List <Map <String, Object>> list = query.list();
-        return list;
-    }
-
     public <T> void insert(T t)
     {
         getSession().persist(t);
