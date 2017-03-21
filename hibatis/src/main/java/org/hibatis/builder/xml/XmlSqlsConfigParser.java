@@ -16,12 +16,11 @@ import org.xml.sax.SAXException;
 public final class XmlSqlsConfigParser implements EntityResolver
 {
 	private static final Map <String, String> doctypeMap = new HashMap <String, String>();
-	
-	private static InputSource source;
 
 	static
 	{
-		doctypeMap.put("-//github.com/anleapat/hibatis//DTD sql 1.0//EN".toUpperCase(), "https://raw.githubusercontent.com/anleapat/hibatis/master/hibatis-config_1_0.dtd");
+		doctypeMap.put("-//github.com/anleapat/hibatis//DTD sql 1.0//EN".toUpperCase(),
+				"https://raw.githubusercontent.com/anleapat/hibatis/master/hibatis-config_1_0.dtd");
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException
@@ -55,32 +54,33 @@ public final class XmlSqlsConfigParser implements EntityResolver
 
 	private InputSource getInputSource(String path, InputSource source)
 	{
-		if(this.source != null)
+
+		try
 		{
-			return this.source;
+			InputStream in = Resources.getResourceAsStream("com/hibatis/hibatis-config_1_0.dtd");
+			if (path != null)
+			{
+				
+				if (in == null)
+				{
+					if(path.startsWith("http"))
+					{
+						URL url = new URL(path);
+						in = url.openStream();
+					}
+					else
+					{
+						in = Resources.getResourceAsStream(path);
+					}
+				}
+			}
+			source = new InputSource(in);
 		}
-		if (path != null)
+		catch (IOException e)
 		{
-			InputStream in = null;
-			try
-			{
-				if(path.startsWith("http"))
-				{
-					URL url = new URL(path);
-					in = url.openStream();
-				}
-				if(in == null)
-				{
-					in = Resources.getResourceAsStream(path);
-				}
-				source = new InputSource(in);
-				this.source = source;
-			}
-			catch (IOException e)
-			{
-				throw new BuilderException(e);
-			}
+			// ignore, null is ok
 		}
+
 		return source;
 	}
 }
