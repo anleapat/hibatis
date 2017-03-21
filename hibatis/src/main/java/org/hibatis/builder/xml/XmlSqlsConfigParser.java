@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.hibatis.builder.BuilderException;
 import org.hibatis.io.Resources;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -60,7 +61,7 @@ public final class XmlSqlsConfigParser implements EntityResolver
 		}
 		if (path != null)
 		{
-			InputStream in;
+			InputStream in = null;
 			try
 			{
 				if(path.startsWith("http"))
@@ -68,7 +69,7 @@ public final class XmlSqlsConfigParser implements EntityResolver
 					URL url = new URL(path);
 					in = url.openStream();
 				}
-				else
+				if(in == null)
 				{
 					in = Resources.getResourceAsStream(path);
 				}
@@ -77,7 +78,7 @@ public final class XmlSqlsConfigParser implements EntityResolver
 			}
 			catch (IOException e)
 			{
-				// ignore, null is ok
+				throw new BuilderException(e);
 			}
 		}
 		return source;
