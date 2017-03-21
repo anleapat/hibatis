@@ -20,7 +20,7 @@ public final class XmlSqlsConfigParser implements EntityResolver
 
 	static
 	{
-		doctypeMap.put("-//github.com/anleapat/hibatis//DTD sql 1.0//EN".toUpperCase(), "https://raw.githubusercontent.com/anleapat/hibatis/master/hibatis/hibatis-config_1_0.dtd");
+		doctypeMap.put("-//github.com/anleapat/hibatis//DTD sql 1.0//EN".toUpperCase(), "https://raw.githubusercontent.com/anleapat/hibatis/master/hibatis-config_1_0.dtd");
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException
