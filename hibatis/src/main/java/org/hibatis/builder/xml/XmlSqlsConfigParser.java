@@ -58,20 +58,17 @@ public final class XmlSqlsConfigParser implements EntityResolver
 		try
 		{
 			InputStream in = Resources.getResourceAsStream("com/hibatis/hibatis-config_1_0.dtd");
-			if (path != null)
+			if (path != null && in == null)
 			{
 				
-				if (in == null)
+				if(path.startsWith("http"))
 				{
-					if(path.startsWith("http"))
-					{
-						URL url = new URL(path);
-						in = url.openStream();
-					}
-					else
-					{
-						in = Resources.getResourceAsStream(path);
-					}
+					URL url = new URL(path);
+					in = url.openStream();
+				}
+				else
+				{
+					in = Resources.getResourceAsStream(path);
 				}
 			}
 			source = new InputSource(in);
