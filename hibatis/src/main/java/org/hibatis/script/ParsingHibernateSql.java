@@ -100,10 +100,11 @@ public class ParsingHibernateSql
 	{
 	    if(parameter != null)
 	    {
+	        String sql = sb.toString().replace(" ", "");
     		Set<String> keys = parameter.keySet();
     		for (String key : keys)
     		{
-    			if(sb.toString().replace(" ", "").indexOf(":" + key) > 0)
+    			if(sql.indexOf(":" + key) > 0)
     			{
     				paraMap.put(key, parameter.get(key));
     			}
