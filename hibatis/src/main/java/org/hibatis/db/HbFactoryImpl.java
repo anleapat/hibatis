@@ -155,9 +155,27 @@ public class HbFactoryImpl implements HbFactory
         HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
         StringBuffer sql = new StringBuffer();
         String hql = hquery.getSql().toUpperCase();
-        int firstFrom = hql.indexOf("FROM");
-        hql = hquery.getSql().substring(firstFrom + 4, hql.length());
-        sql.append("SELECT COUNT(*) FROM ").append(hql);
+        if(hql.replaceAll("\r\n", "").trim().startsWith("FROM"))// maybe start with blank or \r\n, so replace
+        {
+        	//without select, only from clause, like: from Entity where 1=1
+	        int firstFrom = hql.indexOf("FROM");
+	        hql = hquery.getSql().substring(firstFrom + 4, hql.length());
+	        sql.append("SELECT COUNT(*) FROM ").append(hql);
+        }
+        else if(hql.replaceAll("\r\n", "").trim().startsWith("SELECT"))
+        {
+        	//with select, like: 'select e from Entity e where 1=1' or 'select distinct e from Entity e where 1=1'
+        	int firstSelect = hql.indexOf("SELECT");
+        	int firstFrom = hql.indexOf("FROM");
+        	//"select".length + its index
+        	String countClause = hquery.getSql().substring(firstSelect + 6, firstFrom);
+        	String fromField = hquery.getSql().substring(firstFrom + 4, hql.length());
+        	sql.append("SELECT COUNT(").append(countClause.trim()).append(") FROM ").append(fromField);
+        }
+        else
+        {
+        	//Is there this case happen?
+        }
         Query query = getSession().createQuery(sql.toString());
         Map <String, Object> paraMap = hquery.getParameter();
         if (null != paraMap && paraMap.size() > 0)
