@@ -15,6 +15,10 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory;
+import org.hibernate.hql.spi.QueryTranslator;
+import org.hibernate.hql.spi.QueryTranslatorFactory;
 import org.hibernate.transform.Transformers;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,7 +125,7 @@ public class HbFactoryImpl implements HbFactory
     {
         HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT COUNT(1) AS CNT FROM (\n").append(hquery.getSql()).append("\n)");
+        sql.append("SELECT COUNT(1) AS CNT FROM (\n").append(hquery.getSql()).append("\n) SQL_COUNT_TABLE");
         Query query = getSession().createSQLQuery(sql.toString());
         Map <String, Object> paraMap = hquery.getParameter();
         if (null != paraMap && paraMap.size() > 0)
@@ -150,58 +154,32 @@ public class HbFactoryImpl implements HbFactory
         return record;
     }
 
-    /**
-     * hql record count
-     */
     public int recordCountByHql(String selectId, Map <String, Object> parameter)
     {
         HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
-        StringBuffer sql = new StringBuffer();
-        String hql = hquery.getSql().toUpperCase();
-        if(hql.replaceAll("\r\n", "").trim().startsWith("FROM"))// maybe start with blank or \r\n, so replace
-        {
-        	//without select, only from clause, like: from Entity where 1=1
-	        int firstFrom = hql.indexOf("FROM");
-	        hql = hquery.getSql().substring(firstFrom + 4, hql.length());
-	        sql.append("SELECT COUNT(*) FROM ").append(hql);
-        }
-        else if(hql.replaceAll("\r\n", "").trim().startsWith("SELECT"))
-        {
-        	//with select, like: 'select e from Entity e where 1=1' or 'select distinct e from Entity e where 1=1'
-        	int firstSelect = hql.indexOf("SELECT");
-        	int firstFrom = hql.indexOf("FROM");
-        	//"select".length + its index
-        	String countClause = hquery.getSql().substring(firstSelect + 6, firstFrom);
-        	String fromField = hquery.getSql().substring(firstFrom + 4, hql.length());
-        	sql.append("SELECT COUNT(").append(countClause.trim()).append(") FROM ").append(fromField);
-        }
-        else
-        {
-        	//Is there this case happen?
-        }
-        Query query = getSession().createQuery(sql.toString());
+        String hql = hquery.getSql();
+        QueryTranslatorFactory translatorFactory = new ASTQueryTranslatorFactory();
+        SessionFactoryImplementor factory = (SessionFactoryImplementor) sessionFactory;
+        QueryTranslator translator = translatorFactory.createFilterTranslator(hql, hql, hquery.getParameter(), factory);
+        translator.compile(hquery.getParameter(), true);
+        
+        StringBuffer sql = new StringBuffer(); 
+        sql.append("SELECT COUNT(1) AS CNT FROM (\n").append(translator.getSQLString()).append("\n) HQL_COUNT_TABLE");
+        Query query = getSession().createSQLQuery(sql.toString());
         Map <String, Object> paraMap = hquery.getParameter();
         if (null != paraMap && paraMap.size() > 0)
         {
             Set <String> keys = paraMap.keySet();
             for (String key : keys)
             {
-                if(paraMap.get(key) instanceof Object[])
-                {
-                    query.setParameterList(key, (Object[])paraMap.get(key));
-                }
-                else if(paraMap.get(key) instanceof ArrayList <?>)
-                {
-                    query.setParameterList(key, (ArrayList <?>)paraMap.get(key));
-                }
-                else
-                {
-                    query.setParameter(key, paraMap.get(key));
-                }
+            	int[] arr = translator.getParameterTranslations().getNamedParameterSqlLocations(key);
+            	query.setParameter(arr[0], paraMap.get(key));
             }
         }
-        List list = query.list();
-        int record = Integer.parseInt(list.get(0).toString());
+        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        List <Map <String, Object>> list = query.list();
+        Map <String, Object> countMap = list.get(0);
+        int record = Integer.parseInt(countMap.get("CNT").toString());
         return record;
     }
 
