@@ -150,6 +150,9 @@ public class HbFactoryImpl implements HbFactory
         return record;
     }
 
+    /**
+     * hql record count
+     */
     public int recordCountByHql(String selectId, Map <String, Object> parameter)
     {
         HibernateQuery hquery = ParsingHibernateSql.parsing(selectId, parameter);
