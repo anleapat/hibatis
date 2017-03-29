@@ -2,8 +2,8 @@ package org.hibatis.db;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,10 +148,9 @@ public class HbFactoryImpl implements HbFactory
                 }
             }
         }
-        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        List <Map <String, Object>> list = query.list();
-        Map <String, Object> countMap = list.get(0);
-        int record = Integer.parseInt(countMap.get("CNT").toString());
+        List list = query.list();
+        Object cnt = list.get(0);
+        int record = Integer.parseInt(cnt.toString());
         return record;
     }
 
@@ -207,10 +206,9 @@ public class HbFactoryImpl implements HbFactory
                 }
             }
         }
-        query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        List <Map <String, Object>> list = query.list();
-        Map <String, Object> countMap = list.get(0);
-        int record = Integer.parseInt(countMap.get("CNT").toString());
+        List list = query.list();
+        Object cnt = list.get(0);
+        int record = Integer.parseInt(cnt.toString());
         return record;
     }
 
