@@ -1,5 +1,6 @@
 package org.hibatis.db;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ import java.util.Map;
  * @since Oct 20, 2016 4:35:15 PM
  * @desc
  */
-public interface HbFactory
+public interface HbFactory extends Serializable
 {
     
     /**

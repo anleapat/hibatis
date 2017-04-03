@@ -32,7 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class HbFactoryImpl implements HbFactory
 {
 
-	public HbFactoryImpl()
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public HbFactoryImpl()
 	{
 	}
 
